@@ -1,0 +1,75 @@
+go get github.com/hajimehoshi/ebiten/v2
+
+
+
+
+package main
+
+import (
+    "github.com/hajimehoshi/ebiten/v2"
+    "github.com/hajimehoshi/ebiten/v2/ebitenutil"
+    "image/color"
+)
+
+const (
+    screenWidth  = 640
+    screenHeight = 480
+)
+
+type Game struct {
+    playerX     float64
+    playerY     float64
+    playerSpeed float64
+    jump        bool
+    jumpSpeed   float64
+    gravity     float64
+}
+
+func (g *Game) Update() error {
+    if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+        g.playerX += g.playerSpeed
+    }
+    if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+        g.playerX -= g.playerSpeed
+    }
+    if ebiten.IsKeyPressed(ebiten.KeySpace) && !g.jump {
+        g.jump = true
+        g.jumpSpeed = -10
+    }
+
+    if g.jump {
+        g.playerY += g.jumpSpeed
+        g.jumpSpeed += g.gravity
+        if g.playerY >= screenHeight-50 { // Assume ground level is at screenHeight-50
+            g.playerY = screenHeight - 50
+            g.jump = false
+            g.jumpSpeed = 0
+        }
+    }
+
+    return nil
+}
+
+func (g *Game) Draw(screen *ebiten.Image) {
+    screen.Fill(color.RGBA{0x00, 0x00, 0x00, 0xff})
+    ebitenutil.DrawRect(screen, g.playerX, g.playerY, 50, 50, color.RGBA{0xff, 0x00, 0x00, 0xff})
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+    return screenWidth, screenHeight
+}
+
+func main() {
+    game := &Game{
+        playerX:     screenWidth / 2,
+        playerY:     screenHeight - 50,
+        playerSpeed: 5,
+        gravity:     0.5,
+    }
+
+    ebiten.SetWindowSize(screenWidth, screenHeight)
+    ebiten.SetWindowTitle("2D Pixel Art Character Movement")
+    if err := ebiten.RunGame(game); err != nil {
+        panic(err)
+    }
+}
