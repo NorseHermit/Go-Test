@@ -1,0 +1,46 @@
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+type Payload struct {
+    Name  string `json:"name"`
+    Email string `json:"email"`
+}
+
+func main() {
+    url := "https://api.example.com/submit"
+    
+    // Creazione del payload
+    payload := Payload{
+        Name:  "John Doe",
+        Email: "john.doe@example.com",
+    }
+    jsonData, err := json.Marshal(payload)
+    if err != nil {
+        fmt.Printf("Errore nella serializzazione del payload: %v\n", err)
+        return
+    }
+
+    // Creazione della richiesta POST
+    resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+    if err != nil {
+        fmt.Printf("Errore nella richiesta POST: %v\n", err)
+        return
+    }
+    defer resp.Body.Close()
+
+    // Lettura della risposta
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        fmt.Printf("Errore nella lettura della risposta: %v\n", err)
+        return
+    }
+
+    // Stampa del contenuto della risposta
+    fmt.Printf("Risposta POST: %s\n", body)
+}
