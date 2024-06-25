@@ -1,0 +1,37 @@
+package main
+
+import (
+    "context"
+    "log"
+)
+
+type Destination struct {
+    ID    int     `json:"id"`
+    Name  string  `json:"name"`
+    Votes float64 `json:"votes"`
+}
+
+func fetchBestDestinations() ([]Destination, error) {
+    rows, err := db.Query(context.Background(), `
+        SELECT id, name, votes
+        FROM destinations
+        ORDER BY votes DESC
+        LIMIT 10
+    `)
+    if err != nil {
+        log.Printf("Query failed: %v\n", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var destinations []Destination
+    for rows.Next() {
+        var destination Destination
+        if err := rows.Scan(&destination.ID, &destination.Name, &destination.Votes); err != nil {
+            log.Printf("Failed to scan row: %v\n", err)
+            return nil, err
+        }
+        destinations = append(destinations, destination)
+    }
+    return destinations, nil
+}
