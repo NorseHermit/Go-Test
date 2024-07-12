@@ -1,0 +1,38 @@
+package main
+
+import (
+    "context"
+    "log"
+    "os"
+
+    "github.com/gin-gonic/gin"
+    "github.com/jackc/pgx/v4"
+    "github.com/joho/godotenv"
+)
+
+var genDb *pgx.Conn
+
+func main() {
+    // Carica le variabili d'ambiente
+    if err := godotenv.Load(); err != nil {
+        log.Fatalf("Errore nel caricamento del file .env: %v\n", err)
+    }
+
+    // Connessione al database
+    var err error
+    genDb, err = pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+    if err != nil {
+        log.Fatalf("Impossibile connettersi al database: %v\n", err)
+    }
+    defer genDb.Close(context.Background())
+
+    // Inizializza il router
+    genRouter := gin.Default()
+    genRouter.GET("/best-destinations", genGetBestDestinations)
+    genRouter.POST("/add-destination", genAddDestination)
+
+    // Avvia il server
+    if err := genRouter.Run(":8080"); err != nil {
+        log.Fatalf("Errore nell'avvio del server: %v\n", err)
+    }
+}
