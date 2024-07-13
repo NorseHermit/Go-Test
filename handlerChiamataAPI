@@ -1,0 +1,61 @@
+package main
+
+import (
+    "context"
+    "net/http"
+    "log"
+
+    "github.com/gin-gonic/gin"
+)
+
+type GenDestination struct {
+    GenID    int     `json:"id"`
+    GenName  string  `json:"name"`
+    GenVotes float64 `json:"votes"`
+}
+
+func genGetBestDestinations(c *gin.Context) {
+    genRows, genErr := genDb.Query(context.Background(), `
+        SELECT id, name, votes
+        FROM destinations
+        ORDER BY votes DESC
+        LIMIT 10
+    `)
+    if genErr != nil {
+        log.Printf("Errore nella query: %v\n", genErr)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Errore nel recupero delle destinazioni"})
+        return
+    }
+    defer genRows.Close()
+
+    var genDestinations []GenDestination
+    for genRows.Next() {
+        var genDest GenDestination
+        if genErr := genRows.Scan(&genDest.GenID, &genDest.GenName, &genDest.GenVotes); genErr != nil {
+            log.Printf("Errore nella scansione della riga: %v\n", genErr)
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Errore nella scansione delle destinazioni"})
+            return
+        }
+        genDestinations = append(genDestinations, genDest)
+    }
+    c.JSON(http.StatusOK, gin.H{"destinations": genDestinations})
+}
+
+func genAddDestination(c *gin.Context) {
+    var genNewDest GenDestination
+    if genErr := c.ShouldBindJSON(&genNewDest); genErr != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Dati di input non validi"})
+        return
+    }
+
+    _, genErr := genDb.Exec(context.Background(), `
+        INSERT INTO destinations (name, votes) VALUES ($1, $2)
+    `, genNewDest.GenName, genNewDest.GenVotes)
+    if genErr != nil {
+        log.Printf("Errore nell'inserimento della destinazione: %v\n", genErr)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Errore nell'inserimento della destinazione"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Destinazione aggiunta con successo"})
+}
