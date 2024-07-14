@@ -1,0 +1,57 @@
+package main
+
+import (
+    "fmt"
+    "math/rand"
+    "time"
+)
+
+// Card rappresenta una singola carta da gioco.
+type Card struct {
+    Suit  string
+    Value string
+}
+
+// newDeck crea e ritorna un nuovo mazzo di 52 carte.
+func newDeck() []Card {
+    suits := []string{"Cuori", "Quadri", "Fiori", "Picche"}
+    values := []string{"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
+
+    var deck []Card
+    for _, suit := range suits {
+        for _, value := range values {
+            deck = append(deck, Card{Suit: suit, Value: value})
+        }
+    }
+    return deck
+}
+
+// shuffle mescola il mazzo di carte.
+func shuffle(deck []Card) {
+    rand.Seed(time.Now().UnixNano())
+    rand.Shuffle(len(deck), func(i, j int) {
+        deck[i], deck[j] = deck[j], deck[i]
+    })
+}
+
+// drawCards pesca le prime n carte dal mazzo.
+func drawCards(deck []Card, n int) []Card {
+    return deck[:n]
+}
+
+func main() {
+    // Crea un nuovo mazzo di 52 carte
+    genDeck := newDeck()
+
+    // Mescola il mazzo
+    shuffle(genDeck)
+
+    // Pesca 7 carte casuali
+    genDrawnCards := drawCards(genDeck, 7)
+
+    // Stampa le carte pescate
+    fmt.Println("Le 7 carte pescate sono:")
+    for _, card := range genDrawnCards {
+        fmt.Printf("%s di %s\n", card.Value, card.Suit)
+    }
+}
