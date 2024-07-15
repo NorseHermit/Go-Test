@@ -1,0 +1,12 @@
+func newDeck() []Card {
+    suits := []string{"Cuori", "Quadri", "Fiori", "Picche"}
+    values := []string{"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
+
+    var deck []Card
+    for _, suit := range suits {
+        for _, value := range values {
+            deck = append(deck, Card{Suit: suit, Value: value})
+        }
+    }
+    return deck
+}
