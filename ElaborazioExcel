@@ -1,0 +1,43 @@
+package main
+
+import (
+    "fmt"
+    "log"
+
+    "github.com/xuri/excelize/v2"
+)
+
+func main() {
+    // Percorso del file Excel da leggere
+    genFilePath := "example.xlsx" // Sostituisci con il percorso del tuo file
+
+    // Apri il file Excel
+    genFile, err := excelize.OpenFile(genFilePath)
+    if err != nil {
+        log.Fatalf("Impossibile aprire il file: %v\n", err)
+    }
+    defer func() {
+        // Chiudi il file Excel
+        if err := genFile.Close(); err != nil {
+            log.Fatalf("Errore nella chiusura del file: %v\n", err)
+        }
+    }()
+
+    // Nome del foglio di lavoro da elaborare
+    genSheetName := "Sheet1" // Sostituisci con il nome del foglio da elaborare
+
+    // Ottieni tutte le righe del foglio di lavoro
+    genRows, err := genFile.GetRows(genSheetName)
+    if err != nil {
+        log.Fatalf("Errore nel recupero delle righe: %v\n", err)
+    }
+
+    // Elabora le righe del foglio di lavoro
+    for genRowIndex, genRow := range genRows {
+        fmt.Printf("Riga %d: ", genRowIndex)
+        for genColIndex, genColCell := range genRow {
+            fmt.Printf("Colonna %d: %s ", genColIndex, genColCell)
+        }
+        fmt.Println()
+    }
+}
