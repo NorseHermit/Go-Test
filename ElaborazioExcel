@@ -9,7 +9,7 @@ import (
 
 func main() {
     // Percorso del file Excel da leggere
-    genFilePath := "example.xlsx" // Sostituisci con il percorso del tuo file
+    genFilePath := "example.xlsx" // percorso del file
 
     // Apri il file Excel
     genFile, err := excelize.OpenFile(genFilePath)
