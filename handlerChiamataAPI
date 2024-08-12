@@ -23,7 +23,7 @@ func genGetBestDestinations(c *gin.Context) {
     `)
     if genErr != nil {
         log.Printf("Errore nella query: %v\n", genErr)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Errore nel recupero delle destinazioni"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Errore recupero destinazioni"})
         return
     }
     defer genRows.Close()
